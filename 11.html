@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮箱域名变更通知</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "Heiti SC", sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: #fff;
+        }
+
+        /* 背景图样式 */
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            transition: opacity 1s ease-in-out;
+        }
+
+        /* 背景遮罩层 (增加文字可读性) */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(70, 10, 80, 0.6) 0%, rgba(0, 0, 0, 0.8) 100%);
+            z-index: -1;
+        }
+
+        /* 内容容器 */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 40px 30px;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            z-index: 1;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .new-domain {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 10px 0;
+            border: 1px dashed #4CAF50;
+            word-break: break-all;
+            color: #fff;
+        }
+
+        .redirect-btn {
+            background-color: #FF4081;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4);
+            margin-top: 10px;
+        }
+
+        .redirect-btn:hover {
+            background-color: #E91E63;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 64, 129, 0.6);
+        }
+
+        /* 音乐控制按钮 (可选：如果想让用户手动控制) */
+        /* .music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 100;
+        } */
+    </style>
+</head>
+<body>
+
+    <!-- 背景图层 -->
+    <div class="bg-image" id="bgImage"></div>
+    <div class="overlay"></div>
+
+    <!-- 页面内容 -->
+    <div class="container">
+        <h1>🔔 域名变更通知</h1>
+        <div class="message">
+            <p>邮箱服务域名已更换，请前往新域名继续访问。</p>
+            <p>新域名地址：mail.915161.xyz</p>
+        </div>
+        <div class="new-domain" id="newDomain">mail.915161.xyz</div>
+        <button class="redirect-btn" onclick="redirectToNewDomain()">立即前往新域名</button>
+    </div>
+
+    <!-- 背景音乐 (隐藏) -->
+    <!-- 如果自动播放失败，浏览器通常会阻止，需要用户点击一次页面 -->
+    <audio id="bgMusic" preload="auto"></audio>
+
+    <script>
+        // ================== ⚙️ 配置区域 (请务必修改这里) ==================
+
+        // 1. 设置你的新域名
+        const NEW_DOMAIN = "https://www.your-new-domain.com";
+
+        // 2. 设置背景图库 (建议使用高清动漫壁纸链接)
+        const BACKGROUND_IMAGES = [
+          //  "https://images.unsplash.com/photo-1578683010236-986686b09d70?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+            "https://www.cccimg.com/view.php/2e41fcd6eade23b35daeb87f9b54d108.jpg",
+        //    "https://images.unsplash.com/photo-1543465077-db45d34b8a8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+         //   "https://images.unsplash.com/photo-1537151625747-508d99836c9f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
+        ];
+
+        // 3. 设置背景音乐链接 (请替换为真实的 .mp3 链接)
+        //    例如：https://example.com/music/bg.mp3
+        const MUSIC_URL = "https://www.cccimg.com/view.php/3c58625638421af5f4a1e50c2b241100.mp3";
+
+        // ================== 🚀 逻辑处理 ==================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const bgImageElement = document.getElementById('bgImage');
+            const bgMusicElement = document.getElementById('bgMusic');
+            const newDomainElement = document.getElementById('newDomain');
+
+            // 1. 随机背景图
+            const randomIndex = Math.floor(Math.random() * BACKGROUND_IMAGES.length);
+            bgImageElement.style.backgroundImage = `url('${BACKGROUND_IMAGES[randomIndex]}')`;
+
+            // 2. 设置新域名显示
+            newDomainElement.textContent = NEW_DOMAIN.replace(/^https?:\/\//, '');
+
+            // 3. 配置并尝试播放音乐
+            bgMusicElement.src = MUSIC_URL;
+            
+            // 尝试自动播放 (现代浏览器通常需要用户手势)
+            const playPromise = bgMusicElement.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("背景音乐自动播放成功");
+                }).catch(error => {
+                    console.warn("自动播放被阻止:", error);
+                    // 提示：如果自动播放失败，可以监听用户的点击事件来播放
+                    // document.body.addEventListener('click', function() { bgMusicElement.play(); }, {once: true});
+                });
+            }
+        });
+
+        function redirectToNewDomain() {
+            window.location.href = NEW_DOMAIN;
+        }
+    </script>
+
+</body>
+</html>
